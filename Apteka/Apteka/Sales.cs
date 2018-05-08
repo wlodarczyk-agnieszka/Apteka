@@ -14,9 +14,71 @@ namespace Apteka
                                                                      "User id=sa;" + "Password=Test2010;");
         private static SqlCommand _command = new SqlCommand();
 
+        public static void Sell()
+        {
+            Console.Write("Podaj ID leku: ");
+            int medicineID = Convert.ToInt32(Console.ReadLine());
+
+            Console.Write("Podaj ilość: ");
+            int amount = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Sprawdzam dostępność...");
+
+            // sprawdzamy czy lek istnieje, czy jest wystarczająca jego ilosc i czy jest na recepte
+            _command.Parameters.Clear();
+            _command.CommandText = "SELECT ID, Amount, WithPrescription FROM Medicines WHERE ID = @id;";
+            _command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int) { Value = medicineID });
+            _command.Connection = _connection;
+
+            _connection.Open();
+            var reader = _command.ExecuteReader();
+            
+
+            if (reader.Read())
+            {
+                if (Convert.ToInt32(reader["Amount"]) < amount)
+                {
+                    Console.WriteLine($"Nie ma wystarczającej ilości leku w magazynie (potrzeba: {amount}, posiadamy: {reader["Amount"]}).");
+                    _connection.Close();
+                }
+                else
+                {
+                    if (Convert.ToByte(reader["WithPrescription"]) == 1)
+                    {
+                        Console.WriteLine("Lek na receptę. Podaj dane:");
+                        Console.Write("Numer recepty: ");
+                        int number = Convert.ToInt32(Console.ReadLine());
+
+                        Console.Write("Imię i nazwisko pacjenta: ");
+                        string customer = Console.ReadLine();
+
+                        Console.Write("PESEL pacjenta: ");
+                        string pesel = Console.ReadLine();
+
+                        _connection.Close();
+
+                        SellMedicineWithPrescription(medicineID, amount, number,customer, pesel);
+                    }
+                    else
+                    {
+                        _connection.Close();
+
+                        SellMedicine(medicineID, amount);
+                    }
+
+                    Console.WriteLine($"Sprzedano {amount} sztuk(i) leku.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Lek o podanym ID nie istnieje.");
+                _connection.Close();
+            }
+
+            //_connection.Close();
+        }
         
 
-        public static void SellMedicine(int medicineID, int amount) //zakladam, ze podane ID leku jest poprawne
+        private static void SellMedicine(int medicineID, int amount) 
         {
             // wersja bez recepty
             _command.Parameters.Clear();
@@ -32,7 +94,7 @@ namespace Apteka
 
         }
 
-        public static void SellMedicine(int medicineID, int amount, int prescriptionNumber, string customerName, string pesel)
+        private static void SellMedicineWithPrescription(int medicineID, int amount, int prescriptionNumber, string customerName, string pesel)
         {
             // wersja z recepta
             _command.Parameters.Clear();
@@ -49,6 +111,8 @@ namespace Apteka
             _connection.Open();
             _command.ExecuteNonQuery();
             _connection.Close();
+
+            
         }
 
     }

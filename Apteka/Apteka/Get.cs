@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 
 namespace Apteka
 {
-    static class Get
+    static class Get 
     {
         private static SqlConnection _connection = new SqlConnection("Initial Catalog=Apteka;" +
                                                                      "Data Source=192.168.29.128;" +
@@ -108,7 +108,7 @@ namespace Apteka
                 string newPrice = Console.ReadLine();
                 if (newPrice != "")
                 {
-                    m.Price = Convert.ToInt32(newPrice);
+                    m.Price = Convert.ToDecimal(newPrice);
                 }
 
                 Console.WriteLine($"Ilość: {m.Amount}");

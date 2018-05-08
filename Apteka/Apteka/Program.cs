@@ -8,11 +8,12 @@ namespace Apteka
         static void Main(string[] args)
         {
 
-            int option;
+            int option = -1;
             while (true)
             {
-                //Console.WriteLine("\nMENU");
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine("\n*** MAGAZYN ***");
+                Console.WriteLine("0. Szukaj leku");
                 Console.WriteLine("1. Dodaj Lek");
                 Console.WriteLine("2. Pokaż listę leków");
                 Console.WriteLine("3. Aktualizuj lek");
@@ -26,74 +27,64 @@ namespace Apteka
                 Console.WriteLine("8. Sprzedaż - Top 10 leków");
                 Console.WriteLine("9. Sprzedaż - Top 10 pacjentów");
                 Console.WriteLine("*** INNE ***");
-                Console.WriteLine("0. Wyjście");
+                Console.WriteLine("10. Wyjście");
                 Console.Write("Wybierasz: ");
-                option = Convert.ToInt32(Console.ReadLine());
+                try
+                {
+                    option = Convert.ToInt32(Console.ReadLine());
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Błędna opcja.");
+                }
 
-                if (option == 0) break;
+                if (option == 10) break;
 
                 switch (option)
                 {
+                    case 0:
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
+                        Console.Write("Szukana nazwa: ");
+                        string searchName = Console.ReadLine();
+                        Show.SearchMedicines(searchName);
+                        break;
                     case 1:
+                        Console.ForegroundColor = ConsoleColor.Blue;
                         Get.AddMedicine();
                         break;
                     case 2:
+                        Console.ForegroundColor = ConsoleColor.Cyan;
                         Show.ShowMedicines("SELECT ID, Name, Manufacturer, Price, Amount, WithPrescription FROM Medicines;");
                         break;
                     case 3:
+                        Console.ForegroundColor = ConsoleColor.Blue;
                         Get.UpdateMedicine();
                         break;
                     case 4:
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Get.DeleteMedicine();
                         break;
                     case 5:
-                        Sell2();
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Sales.Sell();
+                        break;
+                    case 6:
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Show.ShowPrescriptionsAndPatients();
                         break;
                     case 7:
+                        Console.ForegroundColor = ConsoleColor.Yellow;
                         Show.ShowMedicines("SELECT ID, Name, Manufacturer, Price, Amount, WithPrescription FROM Medicines WHERE Amount <= 20 ORDER BY Amount ASC;");
+                        break;
+                    case 8:
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Show.ShowMedicineBestsellers();
                         break;
                     default:
                         continue;
 
                 }
             }
-
-            //Console.ReadKey();
         }
-
-        static void Sell()
-        {
-            Console.Write("Podaj ID leku: ");
-            int id = Convert.ToInt32(Console.ReadLine());
-
-            Console.Write("Podaj ilość: ");
-            int amount = Convert.ToInt32(Console.ReadLine());
-
-            Sales.SellMedicine(id, amount);
-
-        }
-
-        static void Sell2()
-        {
-            Console.Write("Podaj ID leku: ");
-            int id = Convert.ToInt32(Console.ReadLine());
-
-            Console.Write("Podaj ilość: ");
-            int amount = Convert.ToInt32(Console.ReadLine());
-
-            Console.Write("Podaj numer recepty: ");
-            int number = Convert.ToInt32(Console.ReadLine());
-
-            Console.Write("Imię inazwisko pacjenta: ");
-            string customer = Console.ReadLine();
-
-            Console.Write("PESEL pacjenta: ");
-            string pesel = Console.ReadLine();
-
-            Sales.SellMedicine(id, amount, number,customer, pesel);
-
-        }
-
-
     }
 }
