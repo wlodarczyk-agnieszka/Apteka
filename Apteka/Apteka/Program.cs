@@ -50,7 +50,7 @@ namespace Apteka
                         break;
                     case 1:
                         Console.ForegroundColor = ConsoleColor.Blue;
-                        Get.AddMedicine();
+                        Medicines.AddMedicine(); //.AddMedicine();
                         break;
                     case 2:
                         Console.ForegroundColor = ConsoleColor.Cyan;
@@ -58,11 +58,11 @@ namespace Apteka
                         break;
                     case 3:
                         Console.ForegroundColor = ConsoleColor.Blue;
-                        Get.UpdateMedicine();
+                        Medicines.UpdateMedicine();//.UpdateMedicine();
                         break;
                     case 4:
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Get.DeleteMedicine();
+                        Medicines.DeleteMedicine();//.DeleteMedicine();
                         break;
                     case 5:
                         Console.ForegroundColor = ConsoleColor.Green;
@@ -80,6 +80,10 @@ namespace Apteka
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         Show.ShowMedicineBestsellers();
                         break;
+                    case 9:
+                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                        Show.ShowTopBuyers();
+                        break;
                     default:
                         continue;
 
@@ -87,4 +91,11 @@ namespace Apteka
             }
         }
     }
+    /* TODO:
+     * ustawianie cen i ilosci - nie przyjmuje ujemnych
+     * po wprowadzeniu leku z recepty - pytanie czy wprowadzic kolejny lek na ta sama recepte
+     * przeniesc metody AddMedicine itp jako statyczne do klasy Medicines
+     * refaktoring, usuniecie powtorzen, skrocenie/ rozbicie metod
+     * na nowo tabele, zaladowac wieksza ilosc danych
+     */
 }

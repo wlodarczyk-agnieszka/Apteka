@@ -196,5 +196,44 @@ namespace Apteka
             _connection.Close();
 
         }
+
+        public static void ShowTopBuyers()
+        {
+            _command.CommandText = "select top 10 Customer, sum(Total) as Total from (select p.CustomerName as Customer, p.PESEL, (o.Amount * m.Price) as Total from Prescriptions p inner join Orders o on p.ID = o.PrescriptionID inner join Medicines m on m.ID = o.MedicineID ) as T group by PESEL, Customer order by Total desc;";
+            _command.Connection = _connection;
+            _connection.Open();
+
+            var reader = _command.ExecuteReader();
+
+            if (reader.HasRows)
+            {
+                string totalSum = "Suma".PadRight(7);
+                string customer = "Klient".PadRight(20);
+                string nr = "Nr".PadRight(2);
+
+                string label = $"{nr} | {totalSum} | {customer}";
+
+                Console.WriteLine();
+                Console.WriteLine(label);
+                Console.WriteLine("---------------------------------------");
+
+                int i = 1;
+
+                while (reader.Read())
+                {
+                    string nm = reader["Customer"].ToString();
+                    if (nm.Length >= 20)
+                    {
+                        nm = nm.Substring(0, 17) + "...";
+                    }
+
+                    Console.WriteLine($"{i.ToString().PadRight(2)} | {reader["Total"].ToString().PadRight(7)} | {nm.PadRight(20)}");
+                    i++;
+                }
+
+                Console.WriteLine();
+            }
+            _connection.Close();
+        }
     }
 }

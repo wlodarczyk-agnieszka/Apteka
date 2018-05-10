@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using System.Data.SqlClient;
+using System.Runtime.CompilerServices;
 
 namespace Apteka
 {
@@ -25,13 +26,20 @@ namespace Apteka
             get => _manufacturer;
             set => _manufacturer = value;
         }
-        public decimal Price { get => _price;
-            set => _price = value;
+        public decimal Price
+        {
+            get => _price;
+            set { _price = value > 0 ? value : 0; }
         }
-        public int Amount { get => _amount;
-            set => _amount = value;
+
+        public int Amount
+        {
+            get => _amount;
+            set { _amount = value > 0 ? value : 0; }
         }
-        public byte WithPrescription { get => _withPrescription;
+        public byte WithPrescription
+        {
+            get => _withPrescription;
             set => _withPrescription = value;
         }
 
@@ -95,7 +103,7 @@ namespace Apteka
 
         public override void Reload()
         {
-
+            _command.Parameters.Clear();
             _command.CommandText = "SELECT Name, Manufacturer, Price, Amount, WithPrescription FROM Medicines WHERE ID = @id;";
 
             _command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int) { Value = ID });
@@ -131,6 +139,116 @@ namespace Apteka
             _command.ExecuteNonQuery();
 
             Close();
+        }
+
+
+
+        public static void AddMedicine()
+        {
+            Console.Write("Nazwa leku: ");
+            string name = Console.ReadLine();
+
+            Console.Write("Nazwa producenta: ");
+            string prod = Console.ReadLine();
+
+            decimal price = 0;
+            int amount = 0;
+            byte with = 0;
+
+            try
+            {
+                Console.Write("Cena: ");
+                price = Convert.ToDecimal(Console.ReadLine());
+
+                Console.Write("Ilość: ");
+                amount = Convert.ToInt32(Console.ReadLine());
+
+                Console.Write("Na receptę? (0/1): ");
+                with = Convert.ToByte(Console.ReadLine());
+
+                if (with != 0)
+                {
+                    with = 1;
+                }
+
+                var m = new Medicines(name, prod, price, amount, with);
+                m.Save();
+
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Błędny format liczby.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Błąd: " + e);
+            }
+        }
+
+
+        public static void UpdateMedicine()
+        {
+            Console.Write("Podaj ID leku: ");
+            int id = Convert.ToInt32(Console.ReadLine());
+
+            var m = Get.GetMedicine(id); // m moze byc NULLEM!!!
+
+            Console.WriteLine($"Nazwa: {m.Name}");
+            Console.Write("Nowa nazwa: ");
+            string newName = Console.ReadLine();
+            if (newName != "")
+            {
+                m.Name = newName;
+            }
+
+            try
+            {
+                Console.WriteLine($"Cena: {m.Price}");
+                Console.Write("Nowa cena: ");
+                string newPrice = Console.ReadLine();
+                if (newPrice != "")
+                {
+                    m.Price = Convert.ToDecimal(newPrice);
+                }
+
+                Console.WriteLine($"Ilość: {m.Amount}");
+                Console.Write("Nowa ilość: ");
+                string newAmount = Console.ReadLine();
+                if (newAmount != "")
+                {
+                    m.Amount = Convert.ToInt32(newAmount);
+                }
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Błędny format liczby.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Błąd: " + e);
+            }
+
+            m.Save();
+        }
+
+        public static void DeleteMedicine()
+        {
+            Console.Write("Podaj ID leku: ");
+            int id = Convert.ToInt32(Console.ReadLine());
+
+            var m = Get.GetMedicine(id);
+
+            if (m != null)
+            {
+                m.Remove();
+                Console.WriteLine("Usunięto.");
+            }
+            else
+            {
+                Console.WriteLine("Brak leku o podanym ID.");
+            }
+
+
         }
 
     }
