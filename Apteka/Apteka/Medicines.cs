@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
 using System.Data.SqlClient;
-using System.Runtime.CompilerServices;
+
 
 namespace Apteka
 {
@@ -51,14 +49,7 @@ namespace Apteka
             _manufacturer = manufacturer;
             _price = price;
             _amount = amount;
-            if (withPrescription != 0)
-            {
-                _withPrescription = 1;
-            }
-            else
-            {
-                _withPrescription = 0;
-            }
+            _withPrescription = withPrescription != 0 ? (byte) 1 : (byte) 0;
         }
 
 
@@ -107,7 +98,7 @@ namespace Apteka
             _command.CommandText = "SELECT Name, Manufacturer, Price, Amount, WithPrescription FROM Medicines WHERE ID = @id;";
 
             _command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int) { Value = ID });
-
+            _command.Connection = _connection;
             _connection.Open();
 
             var reader = _command.ExecuteReader();
@@ -158,7 +149,11 @@ namespace Apteka
             try
             {
                 Console.Write("Cena: ");
-                price = Convert.ToDecimal(Console.ReadLine());
+                if (Console.ReadLine() != null)
+                {
+                    price = Convert.ToDecimal(Console.ReadLine().Replace('.', ','));
+                }
+                
 
                 Console.Write("Ilość: ");
                 amount = Convert.ToInt32(Console.ReadLine());
@@ -191,44 +186,54 @@ namespace Apteka
             Console.Write("Podaj ID leku: ");
             int id = Convert.ToInt32(Console.ReadLine());
 
-            var m = Get.GetMedicine(id); // m moze byc NULLEM!!!
+            var m = Get.GetMedicine(id); 
 
-            Console.WriteLine($"Nazwa: {m.Name}");
-            Console.Write("Nowa nazwa: ");
-            string newName = Console.ReadLine();
-            if (newName != "")
+            if (m != null)
             {
-                m.Name = newName;
-            }
-
-            try
-            {
-                Console.WriteLine($"Cena: {m.Price}");
-                Console.Write("Nowa cena: ");
-                string newPrice = Console.ReadLine();
-                if (newPrice != "")
+                Console.WriteLine($"Nazwa: {m.Name}");
+                Console.Write("Nowa nazwa: ");
+                string newName = Console.ReadLine();
+                if (newName != "")
                 {
-                    m.Price = Convert.ToDecimal(newPrice);
+                    m.Name = newName;
                 }
 
-                Console.WriteLine($"Ilość: {m.Amount}");
-                Console.Write("Nowa ilość: ");
-                string newAmount = Console.ReadLine();
-                if (newAmount != "")
+                try
                 {
-                    m.Amount = Convert.ToInt32(newAmount);
-                }
-            }
-            catch (FormatException)
-            {
-                Console.WriteLine("Błędny format liczby.");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Błąd: " + e);
-            }
+                    Console.WriteLine($"Cena: {m.Price}");
+                    Console.Write("Nowa cena: ");
+                    string newPrice = Console.ReadLine();
+                    if (newPrice != "")
+                    {
+                        m.Price = Convert.ToDecimal(newPrice.Replace('.', ','));
+                    }
 
-            m.Save();
+                    Console.WriteLine($"Ilość: {m.Amount}");
+                    Console.Write("Nowa ilość: ");
+                    string newAmount = Console.ReadLine();
+                    if (newAmount != "")
+                    {
+                        m.Amount = Convert.ToInt32(newAmount);
+                    }
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Błędny format liczby.");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Błąd: " + e);
+                }
+
+                m.Save();
+            }
+            else
+            {
+                Console.WriteLine("Brak leku o podanym ID.");
+            }
+            
+
+            
         }
 
         public static void DeleteMedicine()

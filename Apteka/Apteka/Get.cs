@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
 using System.Data.SqlClient;
 
 namespace Apteka
@@ -16,7 +14,6 @@ namespace Apteka
 
         public static Medicines GetMedicine(int id)
         {
-            // zwraca obiekt typu Medicines o podanym ID
             _command.Parameters.Clear();
             _command.CommandText = "SELECT ID, Name, Price, Manufacturer, Amount, WithPrescription FROM Medicines WHERE ID = @id;";
             _command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int) { Value = id });
@@ -34,20 +31,12 @@ namespace Apteka
             }
             else
             {
-                //throw new Exception("Brak produktu z podanym ID w bazie.");
                 Console.WriteLine("Brak produktu z podanym ID w bazie.");
                 _connection.Close();
                 return null;
             }
 
-            //_connection.Close();
-
         }
-
-        
-
-        
-
-        
+      
     }
 }

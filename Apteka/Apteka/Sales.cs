@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
 using System.Data.SqlClient;
-using System.Security.Cryptography.X509Certificates;
+
 
 namespace Apteka
 {
@@ -31,7 +29,7 @@ namespace Apteka
 
             _connection.Open();
             var reader = _command.ExecuteReader();
-            
+
 
             if (reader.Read())
             {
@@ -45,18 +43,36 @@ namespace Apteka
                     if (Convert.ToByte(reader["WithPrescription"]) == 1)
                     {
                         Console.WriteLine("Lek na receptę. Podaj dane:");
-                        Console.Write("Numer recepty: ");
-                        int number = Convert.ToInt32(Console.ReadLine());
 
-                        Console.Write("Imię i nazwisko pacjenta: ");
-                        string customer = Console.ReadLine();
+                        string prescNumber;
+                        do
+                        {
+                            Console.Write("Numer recepty: ");
+                            prescNumber = Console.ReadLine();
+
+                        } while (prescNumber == "");
+
+                        string customer;
+                        do
+                        {
+                            Console.Write("Imię i nazwisko pacjenta: ");
+                            customer = Console.ReadLine();
+
+                        } while (customer == "");
+                        
 
                         Console.Write("PESEL pacjenta: ");
                         string pesel = Console.ReadLine();
 
+                        if (pesel.Length > 11)
+                        {
+                            pesel = pesel.Substring(1, 11);
+                        }
+
                         _connection.Close();
 
-                        SellMedicineWithPrescription(medicineID, amount, number,customer, pesel);
+                        SellMedicineWithPrescription(medicineID, amount, prescNumber, customer, pesel);
+
                     }
                     else
                     {
@@ -76,9 +92,9 @@ namespace Apteka
 
             //_connection.Close();
         }
-        
 
-        private static void SellMedicine(int medicineID, int amount) 
+
+        private static void SellMedicine(int medicineID, int amount)
         {
             // wersja bez recepty
             _command.Parameters.Clear();
@@ -94,7 +110,7 @@ namespace Apteka
 
         }
 
-        private static void SellMedicineWithPrescription(int medicineID, int amount, int prescriptionNumber, string customerName, string pesel)
+        private static void SellMedicineWithPrescription(int medicineID, int amount, string prescriptionNumber, string customerName, string pesel)
         {
             // wersja z recepta
             _command.Parameters.Clear();
@@ -103,7 +119,7 @@ namespace Apteka
                                    "INSERT INTO Orders (MedicineID, PrescriptionID, Amount) VALUES (@id, SCOPE_IDENTITY(), @amount);";
             _command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int) { Value = medicineID });
             _command.Parameters.Add(new SqlParameter("@amount", SqlDbType.Int) { Value = amount });
-            _command.Parameters.Add(new SqlParameter("@prescription", SqlDbType.Int) { Value = prescriptionNumber });
+            _command.Parameters.Add(new SqlParameter("@prescription", SqlDbType.VarChar) { Value = prescriptionNumber });
             _command.Parameters.Add(new SqlParameter("@customer", SqlDbType.NVarChar) { Value = customerName });
             _command.Parameters.Add(new SqlParameter("@pesel", SqlDbType.NVarChar) { Value = pesel });
             _command.Connection = _connection;
@@ -112,7 +128,6 @@ namespace Apteka
             _command.ExecuteNonQuery();
             _connection.Close();
 
-            
         }
 
     }

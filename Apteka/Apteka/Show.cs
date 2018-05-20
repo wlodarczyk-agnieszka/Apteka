@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
 using System.Data.SqlClient;
 
 namespace Apteka
@@ -199,7 +197,7 @@ namespace Apteka
 
         public static void ShowTopBuyers()
         {
-            _command.CommandText = "select top 10 Customer, sum(Total) as Total from (select p.CustomerName as Customer, p.PESEL, (o.Amount * m.Price) as Total from Prescriptions p inner join Orders o on p.ID = o.PrescriptionID inner join Medicines m on m.ID = o.MedicineID ) as T group by PESEL, Customer order by Total desc;";
+            _command.CommandText = "SELECT TOP 10 Customer, SUM(Total) as Total from (SELECT p.CustomerName as Customer, p.PESEL, (o.Amount * m.Price) as Total from Prescriptions p INNER JOIN Orders o ON p.ID = o.PrescriptionID INNER JOIN Medicines m ON m.ID = o.MedicineID ) as T GROUP BY PESEL, Customer ORDER BY Total DESC;";
             _command.Connection = _connection;
             _connection.Open();
 
